@@ -1,0 +1,259 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id             Int       @id @default(autoincrement())
+  username       String    @unique // acts as email
+  password       String
+  role           String    @default("user") // "SUPERADMIN", "ADMIN", "USER"
+  firstLoginDate DateTime?
+  isBlocked      Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  
+  companyId      Int?
+  company        Company?  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  activityLogs   ActivityLog[]
+}
+
+model Company {
+  id                 Int       @id @default(autoincrement())
+  name               String    @unique
+  logoBase64         String?   
+  ownerName          String?
+  ownerEmail         String?
+  phone              String?
+  address            String?   
+  country            String?
+  city               String?
+  website            String?
+  businessType       String?
+  currency           String    @default("PKR")
+  timezone           String    @default("Asia/Karachi")
+  
+  subscriptionPlanId Int?
+  subscriptionPlan   SubscriptionPlan? @relation(fields: [subscriptionPlanId], references: [id])
+  
+  trialDays          Int       @default(14)
+  expiryDate         DateTime?
+  maxUsers           Int       @default(1)
+  storageLimit       Int       @default(500) // in MB
+  currentStorageUsed Float     @default(0)
+  status             String    @default("ACTIVE") // "ACTIVE", "INACTIVE", "TRIAL", "EXPIRED", "SUSPENDED", "BLOCKED"
+  lastLoginDate      DateTime?
+  
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  users              User[]
+  accounts           Account[]
+  categories         Category[]
+  parties            Party[]
+  transactions       Transaction[]
+  duePayments        DuePayment[]
+  notes              Note[]
+  stocks             Stock[]
+  sales              Sale[]
+  activityLogs       ActivityLog[]
+}
+
+model SubscriptionPlan {
+  id               Int       @id @default(autoincrement())
+  name             String    @unique // "Free Trial", "Basic", "Professional", "Enterprise"
+  description      String?
+  price            Decimal   @default(0)
+  durationDays     Int       @default(30)
+  storageLimit     Int       @default(500)
+  maxUsers         Int       @default(1)
+  maxTransactions  Int       @default(100)
+  exportAccess     Boolean   @default(false)
+  backupAccess     Boolean   @default(false)
+  reportsAccess    Boolean   @default(false)
+  prioritySupport  Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  companies        Company[]
+}
+
+model ActivityLog {
+  id          Int       @id @default(autoincrement())
+  userId      Int?
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  companyId   Int?
+  company     Company?  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  role        String?
+  action      String
+  ipAddress   String?
+  device      String?
+  createdAt   DateTime  @default(now())
+}
+
+model SystemSetting {
+  id                 Int       @id @default(autoincrement())
+  appName            String    @default("Codex Plus Accounts")
+  appLogo            String?
+  smtpHost           String?
+  smtpPort           Int?
+  smtpUser           String?
+  smtpPass           String?
+  gdriveClientId     String?
+  gdriveClientSecret String?
+  gdriveRefreshToken String?
+  licenseKey         String?
+  defaultTrialDays   Int       @default(14)
+  maintenanceMode    Boolean   @default(false)
+  defaultCurrency    String    @default("PKR")
+  allowRegistration  Boolean   @default(true)
+  systemEmail        String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+model Account {
+  id             Int       @id @default(autoincrement())
+  name           String
+  accountType    String // "cash", "bank", "easypaisa", "jazzcash"
+  openingBalance Decimal   @default(0) 
+  isActive       Boolean   @default(true)
+  companyId      Int?
+  company        Company?  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  transactions   Transaction[]
+  sales          Sale[]
+}
+
+model Category {
+  id           Int       @id @default(autoincrement())
+  name         String
+  categoryType String // "income", "expense"
+  color        String    @default("#2563eb")
+  companyId    Int?
+  company      Company?  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  transactions Transaction[]
+
+  @@unique([companyId, name, categoryType])
+}
+
+model Party {
+  id         Int       @id @default(autoincrement())
+  name       String
+  partyType  String    @default("other") // "customer", "vendor", "staff", "other"
+  phone      String?
+  email      String?
+  address    String?   
+  notes      String?   
+  companyId  Int?
+  company    Company?  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  transactions Transaction[]
+  duePayments  DuePayment[]
+}
+
+model Transaction {
+  id              Int       @id @default(autoincrement())
+  transactionType String // "income", "expense"
+  title           String
+  amount          Decimal   
+  date            DateTime
+  paymentMethod   String // "cash", "bank", "card", "easypaisa", "jazzcash", "cheque", "other"
+  referenceNumber String?
+  notes           String?   
+  attachment      String?   
+  categoryId      Int
+  category        Category  @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  accountId       Int
+  account         Account   @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  partyId         Int?
+  party           Party?    @relation(fields: [partyId], references: [id], onDelete: SetNull)
+  companyId       Int?
+  company         Company?  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  sales           Sale[]
+
+  @@index([date, transactionType])
+  @@index([categoryId, date])
+  @@index([paymentMethod, date])
+  @@index([accountId, date])
+}
+
+model DuePayment {
+  id         Int       @id @default(autoincrement())
+  dueType    String // "payable", "receivable"
+  title      String
+  amount     Decimal   
+  dueDate    DateTime
+  status     String    @default("pending") // "pending", "paid", "overdue"
+  notes      String?   
+  partyId    Int?
+  party      Party?    @relation(fields: [partyId], references: [id], onDelete: SetNull)
+  companyId  Int?
+  company    Company?  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model Note {
+  id           Int       @id @default(autoincrement())
+  title        String
+  body         String    
+  reminderDate DateTime?
+  isDone       Boolean   @default(false)
+  companyId    Int?
+  company      Company?  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Stock {
+  id         Int       @id @default(autoincrement())
+  name       String    // Removed @unique to allow same stock name across different companies
+  quantity   Int       @default(0)
+  unitPrice  Decimal   @default(0) 
+  companyId  Int?
+  company    Company?  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  vendorName      String?
+  vendorPhone     String?
+  vendorAddress   String?
+
+  sales      Sale[]
+  @@unique([companyId, name]) // Stock names should be unique per company
+}
+
+model Sale {
+  id              Int       @id @default(autoincrement())
+  quantity        Int
+  salePrice       Decimal   
+  totalPrice      Decimal?  
+  date            DateTime
+  notes           String?   
+  customerName    String?
+  customerPhone   String?
+  customerAddress String?   
+  stockId         Int
+  stock           Stock     @relation(fields: [stockId], references: [id], onDelete: Cascade)
+  accountId       Int
+  account         Account   @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  transactionId   Int?
+  transaction     Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+  companyId       Int?
+  company         Company?  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}

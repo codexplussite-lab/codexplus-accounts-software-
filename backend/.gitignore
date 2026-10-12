@@ -1,0 +1,14 @@
+node_modules
+.env
+/generated/prisma
+uploads/
+*.zip
+*.db
+*.db-journal
+*.log
+backend_export_patch/
+backend_final_patch/
+.system_generated/
+.claude/
+.agents/
+.windsurf/
