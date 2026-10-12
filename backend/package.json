@@ -8,7 +8,9 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "build": "prisma generate",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate:postgres": "node scripts/migrate_to_postgres.js"
   },
   "keywords": [],
   "author": "",
