@@ -14,7 +14,7 @@ import BackupPanel from './Backup.jsx'
 import SuperadminPanel from './Superadmin.jsx'
 
 const ChartPanel = lazy(() => import('./ChartPanel.jsx'))
-const apiBase = import.meta.env.VITE_API_BASE_URL || (import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : 'http://localhost:5000/api')
+const apiBase = import.meta.env.VITE_API_BASE_URL || (import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api')
 const navItems = [
   ['Dashboard', LayoutDashboard], ['Transactions', BookOpen], ['Categories', Tags],
   ['Customers', Users], ['Vendors', Users], ['Sales', ShoppingCart], ['Stock', Package],

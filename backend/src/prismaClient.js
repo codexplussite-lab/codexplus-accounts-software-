@@ -1,19 +1,12 @@
 const { PrismaClient } = require('@prisma/client');
+const { PrismaPg } = require('@prisma/adapter-pg');
+const { Pool } = require('pg');
 require('dotenv').config();
 
-const dbUrl = process.env.DATABASE_URL || 'file:./dev.db';
-let prisma;
+const connectionString = process.env.DATABASE_URL || "postgresql://AuditIQ:BrtbprGLj8SDMagF@127.0.0.1:5432/auditiq";
 
-if (dbUrl.startsWith('file:') || dbUrl.includes('.db')) {
-  try {
-    const { PrismaBetterSqlite3 } = require('@prisma/adapter-better-sqlite3');
-    const adapter = new PrismaBetterSqlite3({ url: dbUrl });
-    prisma = new PrismaClient({ adapter });
-  } catch (e) {
-    prisma = new PrismaClient();
-  }
-} else {
-  prisma = new PrismaClient();
-}
+const pool = new Pool({ connectionString });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
 module.exports = prisma;

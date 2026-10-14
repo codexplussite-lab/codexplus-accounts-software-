@@ -18,6 +18,7 @@
   "type": "commonjs",
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.9.1",
+    "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.9.0",
     "bcrypt": "^6.0.0",
     "better-sqlite3": "^13.0.2",
@@ -28,7 +29,7 @@
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.2.0",
     "pdfkit": "^0.19.1",
-    "pg": "^8.22.0",
+    "pg": "^8.23.1",
     "sqlite3": "^6.0.1"
   },
   "devDependencies": {

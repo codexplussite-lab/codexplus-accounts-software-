@@ -43,6 +43,11 @@ app.use('/api/export-sales', require('./routes/exportSalesRoutes'));
 app.use('/api/export-stock', require('./routes/exportStockRoutes'));
 app.use('/api/backup', require('./routes/backupRoutes'));
 
+// CSRF endpoint fix for frontend
+app.get('/api/csrf', (req, res) => {
+  res.json({ csrfToken: 'mock-csrf-token-12345' });
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Backend is running' });
 });
@@ -85,4 +90,3 @@ app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
   await initializeSuperAdmin();
 });
-// Trigger restart

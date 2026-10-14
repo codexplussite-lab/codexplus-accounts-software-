@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { HardDrive, Download, Upload, AlertCircle, Database, CheckCircle2 } from 'lucide-react';
 
-const apiBase = import.meta.env.VITE_API_BASE_URL || (import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : 'http://localhost:5000/api');
+const apiBase = import.meta.env.VITE_API_BASE_URL || (import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/api` : '/api');
 
 function Panel({ title, icon: Icon, children }) { 
     return <section className="panel"><div className="panelTitle"><div><Icon size={19} /><h2>{title}</h2></div></div>{children}</section> 
