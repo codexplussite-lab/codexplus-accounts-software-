@@ -447,7 +447,7 @@ export default function App() {
   const location = useLocation()
   const [checkingSession, setCheckingSession] = useState(true)
   const [loginForm, setLoginForm] = useState({ username: '', password: '' })
-  const [registerForm, setRegisterForm] = useState({ business_name: '', owner_name: '', email: '', phone: '', password: '', logo_base64: '', address: '' })
+  const [registerForm, setRegisterForm] = useState({ business_name: '', owner_name: '', email: '', phone: '', password: '', address: '' })
   const [menuOpen, setMenuOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [isLoggingIn, setIsLoggingIn] = useState(false)
@@ -793,7 +793,7 @@ export default function App() {
       };
 
       const response = await axios.post(`${apiBase}/auth/register`, payload, { withCredentials: true, headers: { 'X-CSRFToken': csrfToken } })
-      setRegisterForm({ business_name: '', owner_name: '', email: '', phone: '', password: '', logo_base64: '' })
+      setRegisterForm({ business_name: '', owner_name: '', email: '', phone: '', password: '', address: '' })
       navigate('/login')
       setMessage(response.data?.detail || 'Registration successful! Please login.')
     } catch (error) {
@@ -1015,66 +1015,6 @@ export default function App() {
           <input required value={registerForm.phone} onChange={(e) => setRegisterForm({ ...registerForm, phone: e.target.value })} placeholder="Phone Number" />
           <input required type="password" value={registerForm.password} onChange={(e) => setRegisterForm({ ...registerForm, password: e.target.value })} placeholder="Set Password" />
           <textarea required value={registerForm.address || ''} onChange={(e) => setRegisterForm({ ...registerForm, address: e.target.value })} placeholder="Shop / Office / Business Address" style={{ minHeight: '60px', padding: '10px 12px', border: '1px solid #d4d4d8', borderRadius: '8px', width: '100%', outline: 'none', background: '#ffffff', color: '#09090b', resize: 'none', fontSize: '15px' }} />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: '100%', marginBottom: '12px' }}>
-            <label style={{ fontSize: '13px', color: '#64748b', textAlign: 'left', fontWeight: 'bold' }}>Company Logo (Optional)</label>
-            <input
-              id="register-logo-upload"
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                const file = e.target.files[0];
-                if (file) {
-                  const reader = new FileReader();
-                  reader.onloadend = () => {
-                    setRegisterForm({ ...registerForm, logo_base64: reader.result });
-                  };
-                  reader.readAsDataURL(file);
-                }
-              }}
-              style={{ display: 'none' }}
-            />
-            <label
-              htmlFor="register-logo-upload"
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                padding: '16px',
-                border: '2px dashed #cbd5e1',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                background: '#f8fafc',
-                transition: 'all 0.2s ease',
-                textAlign: 'center'
-              }}
-              onMouseOver={(e) => {
-                e.currentTarget.style.border = '2px dashed #09090b';
-                e.currentTarget.style.background = '#f1f5f9';
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.border = '2px dashed #cbd5e1';
-                e.currentTarget.style.background = '#f8fafc';
-              }}
-            >
-              {registerForm.logo_base64 ? (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                  <img
-                    src={registerForm.logo_base64}
-                    alt="Uploaded Logo Preview"
-                    style={{ maxHeight: '60px', objectFit: 'contain', borderRadius: '4px' }}
-                  />
-                  <span style={{ fontSize: '12px', color: '#16a34a', fontWeight: 'bold' }}>Logo selected! Click to change</span>
-                </div>
-              ) : (
-                <>
-                  <Upload size={20} style={{ color: '#64748b' }} />
-                  <span style={{ fontSize: '13px', color: '#64748b', fontWeight: '500' }}>Click to upload company logo</span>
-                </>
-              )}
-            </label>
-          </div>
           <button className="primary"><Plus size={18} /> Create Account</button>
           <div style={{ textAlign: 'center', marginTop: '10px' }}>
             <button type="button" className="textLinkButton" style={{ background: 'none', border: 'none', color: '#0f766e', cursor: 'pointer', fontSize: '14px', fontWeight: 'bold' }} onClick={() => { navigate('/login'); setMessage(''); }}>
@@ -1128,9 +1068,7 @@ export default function App() {
     <aside className={menuOpen ? 'sidebar open' : 'sidebar'}>
       <div className="brand">
         <div className="brandMark">
-          {auth?.company_logo ? (
-            <img src={auth.company_logo} alt="Logo" style={{ width: '28px', height: '28px', objectFit: 'contain', borderRadius: '4px' }} />
-          ) : (auth?.appLogo || CODEX_LOGO_MARK) ? (
+          {(auth?.appLogo || CODEX_LOGO_MARK) ? (
             <img src={auth?.appLogo || CODEX_LOGO_MARK} alt="Logo" style={{ width: '28px', height: '28px', objectFit: 'contain', borderRadius: '4px' }} />
           ) : (
             <Landmark size={22} />
